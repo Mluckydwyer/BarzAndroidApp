@@ -9,6 +9,7 @@
         <item name="colorSecondaryDark">@color/colorSecondaryDark</item>
         <item name="textColorSecondary">@color/colorTextOnSecondary</item>
         <item name="colorAccent">@color/colorSecondary</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <item name="android:colorBackground">@color/colorBackground</item>
     </style>
 
