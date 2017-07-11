@@ -5,7 +5,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="textColorPrimary">@color/colorTextOnPrimary</item>
 
-        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondary">@color/colorsecondary</item>
         <item name="colorSecondaryDark">@color/colorSecondaryDark</item>
         <item name="textColorSecondary">@color/colorTextOnSecondary</item>
         <item name="colorAccent">@color/colorSecondary</item>
