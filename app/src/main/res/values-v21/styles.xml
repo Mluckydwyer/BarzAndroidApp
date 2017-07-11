@@ -1,17 +1,12 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="textColorPrimary">@color/colorTextOnPrimary</item>
-
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorSecondaryDark">@color/colorSecondaryDark</item>
-        <item name="textColorSecondary">@color/colorTextOnSecondary</item>
         <item name="colorAccent">@color/colorSecondary</item>
-        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <item name="android:colorBackground">@color/colorBackground</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
     </style>
 
 </resources>
