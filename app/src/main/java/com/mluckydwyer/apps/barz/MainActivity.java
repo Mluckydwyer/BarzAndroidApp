@@ -1,7 +1,5 @@
 package com.mluckydwyer.apps.barz;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +8,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final int REQUEST_CAMERA = 200;
 
     private Camera camera;
     private CameraPreview cameraPreview;
@@ -31,20 +27,23 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(cameraPreview);
     }
-    
-    private boolean checkCameraHardware(Context context){
-        if(context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
-            return true;
-        return false;
-    }
 
     public static Camera getCameraInstance(){
         Camera c = null;
-        try{
-            c = Camera.open();
-        }catch(Exception e){
-            e.getStackTrace();
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        int cameraCount = Camera.getNumberOfCameras();
+        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+            Camera.getCameraInfo(camIdx, cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                try {
+                    c = Camera.open(camIdx);
+                } catch (RuntimeException e) {
+                    e.getStackTrace();
+                }
+                return c;
+            }
         }
+        c = Camera.open();
         return c;
     }
 }
