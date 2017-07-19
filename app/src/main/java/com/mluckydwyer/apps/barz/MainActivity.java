@@ -216,4 +216,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    //unused animation code
+    private void playClickAnimation(){
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation);
+        recordButton.setAnimation(animation);
+        recordButton.startAnimation(animation);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
 }
