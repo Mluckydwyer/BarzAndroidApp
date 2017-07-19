@@ -15,17 +15,22 @@
     </FrameLayout>
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_gravity="right|center_vertical">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton"
-            android:layout_width="95dp"
-            android:layout_height="95dp"
+        <ImageView
+            android:id="@+id/outline_circle"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
             android:clickable="true"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/ic_menu_camera" />
+            android:src="@drawable/large_circle" />
+
+        <ImageView
+            android:id="@+id/recording_circle"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            app:srcCompat="@drawable/recording_circle" />
     </FrameLayout>
 
 </FrameLayout>

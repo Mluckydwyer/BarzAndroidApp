@@ -6,13 +6,15 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRecording = false;
     private int cameraNum = 0;
 
+    private ImageView captureButton;
+    private ImageView recordButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,31 +50,19 @@ public class MainActivity extends AppCompatActivity {
         cameraPreview = new CameraPreview(this, camera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(cameraPreview);
-        FloatingActionButton captureButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+
+        captureButton = (ImageView) findViewById(R.id.outline_circle);
+        recordButton = (ImageView) findViewById(R.id.recording_circle) ;
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (isRecording) {
-                            // stop recording and release camera
-                            mediaRecorder.stop();  // stop the recording
-                            releaseMediaRecorder(); // release the MediaRecorder object
-                            camera.lock();         // take camera access back from MediaRecorder
-
-                            // inform the user that recording has stopped (doesn't work since not a traditional button)
-                            //setCaptureButtonText("Capture");
-                            isRecording = false;
-                        } else {
+                        if(!isRecording) {
                             // initialize video camera
-                            if (prepareVideoRecorder()) {
-                                // Camera is available and unlocked, MediaRecorder is prepared,
-                                // now you can start recording
+                            if(prepareVideoRecorder()) {
                                 mediaRecorder.start();
-
-                                // inform the user that recording has started (doesn't work since not a traditional button)
-                                //setCaptureButtonText("Stop");
-                                isRecording = true;
-                            } else {
+                                playAnimation();
+                            }else{
                                 // prepare didn't work, release the camera
                                 releaseMediaRecorder();
                                 // inform user
@@ -196,5 +189,31 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return mediaFile;
+    }
+
+    private void playAnimation(){
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.scale_animation);
+        recordButton.setAnimation(animation);
+        recordButton.startAnimation(animation);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                isRecording = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // stop recording and release camera
+                mediaRecorder.stop();  // stop the recording
+                releaseMediaRecorder(); // release the MediaRecorder object
+                camera.lock();         // take camera access back from MediaRecorder
+                isRecording = false;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 }
