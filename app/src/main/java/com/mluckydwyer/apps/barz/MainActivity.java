@@ -8,17 +8,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -44,6 +40,47 @@ public class MainActivity extends AppCompatActivity {
     private ImageView captureButton;
     private ImageView recordButton;
 
+    private CameraPreview cameraPreview;
+    private FrameLayout preview;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_main);
+
+        // Record code
+        camera = getCameraInstance();
+        cameraPreview = new CameraPreview(this, camera);
+        preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(cameraPreview);
+        captureButton = (ImageView) findViewById(R.id.outline_circle);
+        recordButton = (ImageView) findViewById(R.id.recording_circle);
+
+//      backgroundProcess = new BackgroundProcess(this);
+//      backgroundProcess.ocvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_preview);
+//      backgroundProcess.ocvCameraView.setSystemUiVisibility(SurfaceView.INVISIBLE);
+//      backgroundProcess.ocvCameraView.enableFpsMeter();
+//      backgroundProcess.ocvCameraView.setVisibility(SurfaceView.VISIBLE);
+//      backgroundProcess.ocvCameraView.setCvCameraViewListener(backgroundProcess);
+
+        captureButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!isRecording) {
+                            if (prepareVideoRecorder()) {
+                                mediaRecorder.start();
+                                playAnimation();
+                            } else {
+
+                            }
+                        }
+                    }
+                }
+        );
+    }
 
 
     public static Camera getCameraInstance(){
@@ -116,57 +153,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (backgroundProcess.ocvCameraView != null)
-            backgroundProcess.ocvCameraView.disableView();
-
+//        if (backgroundProcess.ocvCameraView != null)
+//            backgroundProcess.ocvCameraView.disableView();
+        releaseMediaRecorder();
         releaseCamera();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, backgroundProcess.loaderCallback);
-        } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!");
-            backgroundProcess.loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+//        if (!OpenCVLoader.initDebug()) {
+//            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+//            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, backgroundProcess.loaderCallback);
+//        } else {
+//            Log.d(TAG, "OpenCV library found inside package. Using it!");
+//            backgroundProcess.loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+//        }
+        if(camera == null){
+            camera = getCameraInstance();
+            cameraPreview = new CameraPreview(this, camera);
+            preview = (FrameLayout) findViewById(R.id.camera_preview);
+            preview.addView(cameraPreview);
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_main);
-
-        backgroundProcess = new BackgroundProcess(this);
-        backgroundProcess.ocvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_preview);
-        backgroundProcess.ocvCameraView.setSystemUiVisibility(SurfaceView.INVISIBLE);
-        backgroundProcess.ocvCameraView.enableFpsMeter();
-        backgroundProcess.ocvCameraView.setVisibility(SurfaceView.VISIBLE);
-        backgroundProcess.ocvCameraView.setCvCameraViewListener(backgroundProcess);
-
-        // Record code
-        camera = getCameraInstance();
-        captureButton = (ImageView) findViewById(R.id.outline_circle);
-        recordButton = (ImageView) findViewById(R.id.recording_circle);
-        captureButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!isRecording) {
-                            if (prepareVideoRecorder()) {
-                                mediaRecorder.start();
-                                playAnimation();
-                            } else {
-                                releaseCamera();
-                            }
-                        }
-                    }
-                }
-        );
     }
 
     private void releaseCamera(){
@@ -174,7 +182,9 @@ public class MainActivity extends AppCompatActivity {
             camera.release();
             camera = null;
         }
+    }
 
+    private void releaseMediaRecorder(){
         if (mediaRecorder != null) {
             mediaRecorder.reset();
             mediaRecorder.release();
@@ -184,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean prepareVideoRecorder() {
-        camera = getCameraInstance();
         mediaRecorder = new MediaRecorder();
 
         // Step 1: Unlock and set camera to MediaRecorder
@@ -204,9 +213,13 @@ public class MainActivity extends AppCompatActivity {
         // Step 6: Prepare configured MediaRecorder
         try {
             mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            Log.d(TAG, "IllegalStateException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
         } catch (Exception e) {
             //Log.d(TAG, "Exception preparing MediaRecorder: " + e.getMessage());
-            releaseCamera();
+            releaseMediaRecorder();
             return false;
         }
         return true;
@@ -225,9 +238,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 // stop recording and release camera
-                mediaRecorder.stop();  // stop the recording
-                releaseCamera(); // release the MediaRecorder object
-                camera.lock();         // take camera access back from MediaRecorder
+                mediaRecorder.stop();
+                mediaRecorder.release(); // stop the recording
+                camera.lock(); // release the MediaRecorder object
+               // take camera access back from MediaRecorder
                 isRecording = false;
             }
 
