@@ -6,12 +6,13 @@
     android:layout_height="match_parent"
     android:background="#00000000">
 
-    <FrameLayout
+    <org.opencv.android.JavaCameraView
         android:id="@+id/camera_preview"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-    </FrameLayout>
+        android:layout_height="fill_parent"
+        android:visibility="gone"
+        opencv:camera_id="front"
+        opencv:show_fps="true" />
 
     <FrameLayout
         android:layout_width="110dp"

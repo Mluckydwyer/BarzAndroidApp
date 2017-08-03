@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Camera camera;
     private BackgroundProcess backgroundProcess;
+    private VideoCapture videoCapture;
     private MediaRecorder mediaRecorder;
 
     private boolean isRecording = false;
@@ -147,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
         backgroundProcess.ocvCameraView.enableFpsMeter();
         backgroundProcess.ocvCameraView.setVisibility(SurfaceView.VISIBLE);
         backgroundProcess.ocvCameraView.setCvCameraViewListener(backgroundProcess);
+
+        videoCapture = new VideoCapture();
+        //videoCapture.open(-1);
 
         // Record code
         camera = getCameraInstance();
