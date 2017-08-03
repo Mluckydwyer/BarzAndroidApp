@@ -1,5 +1,7 @@
 package com.mluckydwyer.apps.barz;
 
+import android.content.Intent;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -21,6 +23,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final String TAG = "Barz::MainActivity";
+    public static String videoPath;
 
     static {
         System.loadLibrary("opencv_java3");
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         c = Camera.open();
+
         return c;
     }
 
@@ -179,13 +184,18 @@ public class MainActivity extends AppCompatActivity {
             mediaRecorder.reset();
             mediaRecorder.release();
             mediaRecorder = null;
-            camera.lock();
         }
     }
 
     private boolean prepareVideoRecorder() {
         camera = getCameraInstance();
         mediaRecorder = new MediaRecorder();
+
+        try {
+            camera.setPreviewTexture(new SurfaceTexture(10));
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+        }
 
         // Step 1: Unlock and set camera to MediaRecorder
         camera.unlock();
@@ -199,7 +209,8 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.setProfile(CamcorderProfile.get(cameraNum, CamcorderProfile.QUALITY_HIGH));
 
         // Step 4: Set output file
-        mediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO).toString());
+        videoPath = getOutputMediaFile(MEDIA_TYPE_VIDEO).toString();
+        mediaRecorder.setOutputFile(videoPath);
 
         // Step 6: Prepare configured MediaRecorder
         try {
@@ -227,8 +238,8 @@ public class MainActivity extends AppCompatActivity {
                 // stop recording and release camera
                 mediaRecorder.stop();  // stop the recording
                 releaseCamera(); // release the MediaRecorder object
-                camera.lock();         // take camera access back from MediaRecorder
                 isRecording = false;
+                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
             }
 
             @Override

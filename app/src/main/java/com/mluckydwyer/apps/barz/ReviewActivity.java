@@ -14,10 +14,10 @@ public class ReviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review);
         view = (VideoView) findViewById(R.id.fullscreen_review);
+        view.setVideoPath(MainActivity.videoPath);
         view.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-
             }
         });
 

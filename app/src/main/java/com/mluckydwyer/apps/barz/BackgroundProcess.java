@@ -1,6 +1,7 @@
 package com.mluckydwyer.apps.barz;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -25,7 +26,6 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     public CameraBridgeViewBase ocvCameraView;
     private BackgroundSubtractor backgroundSubtractor;
     private Context context;
-
     public BaseLoaderCallback loaderCallback = new BaseLoaderCallback(context) {
         @Override
         public void onManagerConnected(int status) {
@@ -42,6 +42,8 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
             }
         }
     };
+    private SurfaceHolder mHolder;
+    private Camera camera;
 
     public BackgroundProcess(Context context) {
         super(context, 0);
@@ -63,6 +65,10 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
     @Override
     public Mat onCameraFrame(Mat inputFrame) {
+        return openCVPreview(inputFrame);
+    }
+
+    public Mat openCVPreview(Mat inputFrame) {
         int previewScaleFactor = 2;
 
         Core.flip(inputFrame, inputFrame, 1);
@@ -90,6 +96,10 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         output = imgMasked;
 
         return output;
+    }
+
+    public Mat openCVFinal(Mat inputFrame) {
+        return null;
     }
 
 }
