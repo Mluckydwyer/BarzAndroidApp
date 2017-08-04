@@ -1,5 +1,6 @@
 package com.mluckydwyer.apps.barz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -71,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         backgroundProcess.ocvCameraView.setCvCameraViewListener(backgroundProcess);
 
         videoCapture = new VideoCapture();
-        videoCapture.open(-1, android.os.)
 
         captureButton = (ImageView) findViewById(R.id.outline_circle);
         recordButton = (ImageView) findViewById(R.id.recording_circle);
@@ -79,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        if(!isRecording)
+                            playAnimation();
                     }
                 }
         );
@@ -92,12 +93,14 @@ public class MainActivity extends AppCompatActivity {
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
+                isRecording = true;
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                isRecording = false;
+                finish();
+                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
             }
 
             @Override
