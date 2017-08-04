@@ -3,42 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/colorPrimaryLight"
     tools:context="com.mluckydwyer.apps.barz.ReviewActivity">
-
-    <VideoView
-        android:id="@+id/fullscreen_review"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
-    <FrameLayout
+    <VideoView
+        android:id="@+id/videoview"
+        android:layout_width="480dp"
+        android:layout_height="320dp" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?metaButtonBarStyle"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            android:gravity="right"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent">
-
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Share" />
-        </LinearLayout>
-
-    </FrameLayout>
+            android:layout_weight="1"
+            android:text="@string/Share" />
+    </LinearLayout>
 
 </FrameLayout>
