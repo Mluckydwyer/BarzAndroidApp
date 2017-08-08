@@ -15,7 +15,6 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -26,8 +25,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import static android.R.attr.max;
 
 /**
  * Project: Barz
@@ -90,51 +87,39 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     }
 
     public Mat openCVPreview(Mat inputFrame) {
+        //store width and heights for scaling/optimization purposes
+        int w = inputFrame.width();
+        int h = inputFrame.height();
+
+        //resize image for fps purposes lol
+        Imgproc.resize(inputFrame, inputFrame, new Size(480, 320));
+
+        //convert to HSV color space for swag purposes
+        Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2HSV, 3);
+
+        //makes image go to black and white
         Mat toGray = new Mat();
         Imgproc.cvtColor(inputFrame, toGray, Imgproc.COLOR_RGB2GRAY);
 
-        int ksize = 21;
-        int amount = 11;
-        int size = 3;
+        //blur the image to reduce noise
+        Imgproc.GaussianBlur(toGray, toGray, new Size(3, 3), 0);
 
-        Mat atMask = new Mat();
-        Imgproc.adaptiveThreshold(toGray, atMask, max, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, ksize, amount);
+        //now threshold da image
+        Imgproc.threshold(toGray, toGray, 0, 255, Imgproc.THRESH_OTSU);
 
+        //create an erosion and dilation matrixes
+        Mat erosion = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(3,3));
+        Mat dilation = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(8,8));
 
-        Mat eroded = new Mat();
-        //Imgproc.erode(atMask, eroded, Imgproc.getGaussianKernel(100, 50, Imgproc.MORPH_ERODE));
-        Imgproc.erode(atMask, eroded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(size * 2 + 1, size * 2 + 1), new Point(size, size)));
+        //now erode and dilate the toGray matrix
+        //Imgproc.erode(toGray, toGray, erosion);
+        //Imgproc.erode(toGray, toGray, erosion);
+        //Imgproc.dilate(toGray, toGray, dilation);
+        //Imgproc.dilate(toGray, toGray, dilation);
 
+        Imgproc.resize(toGray, toGray, new Size(w, h));
 
-        //remove point noise
-        //Mat denoised = new Mat();
-        //Photo.fastNlMeansDenoising(eroded, denoised);
-
-        /*int previewScaleFactor = 3;
-
-        Core.flip(inputFrame, inputFrame, 1);
-
-        Mat downScale = new Mat();
-        Imgproc.pyrDown(inputFrame, downScale);
-        for (int i = 0; i < previewScaleFactor - 1; i++)
-            Imgproc.pyrDown(downScale, downScale);
-
-        Mat fgMask = new Mat();
-        //backgroundSubtractorPreview.apply(downScale, fgMask);
-        Imgproc.adaptiveThreshold(downScale, fgMask, 10, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_MASK, 5, 2);
-
-        Mat upScaleMask = new Mat();
-        Imgproc.pyrUp(fgMask, upScaleMask);
-        for (int i = 0; i < previewScaleFactor - 1; i++)
-            Imgproc.pyrUp(upScaleMask, upScaleMask);
-
-        //Mat dnMask = new Mat();
-        //Photo.fastNlMeansDenoising(upScaleMask, dnMask, 10, 7, 21);*/
-
-        Mat imgMasked = new Mat();
-        inputFrame.copyTo(imgMasked, eroded);
-
-        return imgMasked;
+        return toGray;
     }
 
     public Mat openCVFinal(Mat inputFrame) {
