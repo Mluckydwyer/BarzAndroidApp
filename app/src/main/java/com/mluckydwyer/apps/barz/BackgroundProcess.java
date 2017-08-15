@@ -15,6 +15,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -93,57 +94,49 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         int h = inputFrame.height();
 
         //resize image for fps purposes lol
-        Imgproc.resize(inputFrame, inputFrame, new Size(256, 144));
+        //Imgproc.resize(inputFrame, inputFrame, new Size(256, 144));
 
         //convert to HSV color space for swag purposes (test with this)
-        Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2HSV, 3);
+        //Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2HSV, 3);
 
         //makes image go to black and white
         //Mat toGray = new Mat();
-        Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2GRAY);
+        //Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2GRAY);
 
         //do binary thres first
         //Imgproc.threshold(inputFrame, inputFrame, 127, 255, Imgproc.THRESH_BINARY);
 
         //gaussian blur
-        Imgproc.GaussianBlur(inputFrame, inputFrame, new Size(5,5), 0);
+        //Imgproc.GaussianBlur(inputFrame, inputFrame, new Size(5,5), 0);
 
         //now threshold da image
         //Imgproc.threshold(inputFrame, inputFrame, 138, 255, Imgproc.THRESH_BINARY);
-        Imgproc.threshold(inputFrame, inputFrame, 0, 255, Imgproc.THRESH_OTSU);
+        //Imgproc.threshold(inputFrame, inputFrame, 0, 255, Imgproc.THRESH_OTSU);
 
         //create an erosion and dilation matrixes
         //Mat erosion = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(3,3));
         //Mat dilation = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(8,8));
 
         //now erode and dilate the toGray matrix
+        //Imgproc.erode(inputFrame, inputFrame, erosion);
         //Imgproc.erode(toGray, toGray, erosion);
-        //Imgproc.erode(toGray, toGray, erosion);
-        //Imgproc.dilate(toGray, toGray, dilation);
+        //Imgproc.dilate(inputFrame, inputFrame, dilation);
         //Imgproc.dilate(toGray, toGray, dilation);
 
         //Imgproc.resize(toGray, toGray, new Size(w, h));
 
-//        //create region of interest and the bar from that for swag
-//        Rect roi = new Rect(w/3, 0, 20, h);
-//        Mat bar = new Mat(inputFrame, roi);
-//
-//        //background mask stuff
-//        Mat fgMask = new Mat();
-//        backgroundSubtractorPreview.apply(bar, fgMask);
-//
-//        //converts mat to bitmap for editing purposes
-//        Bitmap f = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-//        Utils.matToBitmap(inputFrame, f);
-//
-//        for(int x = w/3; x < w/3+20; x++){
-//            for(int y = 0; y < f.getHeight(); y++){
-//                f.setPixel(x,y,0);
-//            }
-//        }
-//
-//        Utils.bitmapToMat(f, inputFrame);
-        Imgproc.resize(inputFrame, inputFrame, new Size(w,h));
+        //create region of interest and the bar from that for swag
+        Rect roi = new Rect(w/3, 0, 20, h);
+        Mat bar = new Mat(inputFrame, roi);
+        Imgproc.cvtColor(bar, bar, Imgproc.COLOR_RGB2HSV, 3);
+        Imgproc.cvtColor(bar, bar, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.GaussianBlur(bar, bar, new Size(5,5), 0);
+        Imgproc.threshold(bar, bar, 0, 255, Imgproc.THRESH_OTSU);
+
+        Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2GRAY);
+
+        Mat submat = inputFrame.submat(roi);
+        bar.copyTo(submat);
 
         return inputFrame;
     }
