@@ -15,6 +15,8 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Project: Barz
@@ -39,8 +42,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     private final int FPS = 15;
     private final int VIDEO_LENGTH_SEC = 5;
     public CameraBridgeViewBase ocvCameraView;
-    private BackgroundSubtractor backgroundSubtractorPreview;
-    private BackgroundSubtractor backgroundSubtractorFinal;
+    private BackgroundSubtractor backgroundSubtractor;
     private Context context;
     public BaseLoaderCallback loaderCallback = new BaseLoaderCallback(context) {
         @Override
@@ -63,8 +65,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     public BackgroundProcess(Context context) {
         super(context, 0);
         this.context = context;
-        backgroundSubtractorPreview = Video.createBackgroundSubtractorMOG2(15, 400.0, true); // Num frames that affect model, shadow threshold, detect shadows
-        backgroundSubtractorFinal = Video.createBackgroundSubtractorKNN(25, 400.0, true); // Num frames that affect model, shadow threshold, detect shadows
+        backgroundSubtractor = Video.createBackgroundSubtractorMOG2(20, 400.0, true); // Num frames that affect model, shadow threshold, detect shadows
         videoFrames = new ArrayList<Mat>();
 
         Log.i(TAG, "Background Process Constructor Called");
@@ -126,17 +127,74 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         //Imgproc.resize(toGray, toGray, new Size(w, h));
 
         //create region of interest and the bar from that for swag
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        List<MatOfPoint> barPoints = new ArrayList<MatOfPoint>();
+        List<MatOfInt> hulls = new ArrayList<MatOfInt>();
+        Mat erosion = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(5, 5));
+        Mat dilation = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(8, 8));
         Rect roi = new Rect(w/3, 0, 20, h);
         Mat bar = new Mat(inputFrame, roi);
+        Mat maskedBar = new Mat();
+        Mat barArea = bar.clone();
+
+        //barPoints.add(new MatOfPoint())
+
+
+
         Imgproc.cvtColor(bar, bar, Imgproc.COLOR_RGB2HSV, 3);
         Imgproc.cvtColor(bar, bar, Imgproc.COLOR_RGB2GRAY);
         Imgproc.GaussianBlur(bar, bar, new Size(5,5), 0);
         Imgproc.threshold(bar, bar, 0, 255, Imgproc.THRESH_OTSU);
 
-        Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.erode(bar, bar, erosion);
+        Imgproc.dilate(bar, bar, dilation);
+        Imgproc.dilate(bar, bar, dilation);
+
+        Mat backsub = new Mat();
+        backgroundSubtractor.apply(barArea, backsub);
+
+        //Imgproc.cvtColor(backsub, backsub, Imgproc.COLOR_RGB2HSV, 3);
+        //Imgproc.cvtColor(backsub, backsub, Imgproc.COLOR_RGB2GRAY);
+
+        Mat m = new Mat();
+        Core.subtract(bar, backsub, bar);
+        Core.subtract(barArea, Core.mean(inputFrame), m);
+        Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2HSV, 3);
+        Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2GRAY);
+        //Core.subtract(bar, m, bar);
+        //Imgproc.findContours(bar, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+        //Imgproc.fillConvexPoly(bar, barPoints, new Scalar(255.0, 255.0, 255.0));
+        //Imgproc.drawContours(bar, contours, 1, new Scalar(255.0, 255.0, 255.0));
+        //Log.d(TAG, "Contours: " + contours.size());
+
+        //Imgproc.cvtColor(bar, bar, Imgproc.);
+
+        //Core.bitwise_not(bar, bar);
 
         Mat submat = inputFrame.submat(roi);
-        bar.copyTo(submat);
+        barArea.copyTo(maskedBar, bar);
+
+        double buff[] = new double[maskedBar.channels()];
+
+        /*for (int x = 0; x < maskedBar.rows(); x++) {
+            for (int y = 0; y < maskedBar.cols(); y++) {
+                if (Arrays.equals(maskedBar.get(x, y), new double[]{0.0, 0.0, 0.0, 0.0})) {
+                    Mat sub = maskedBar.submat(x, x, y, y);
+                    sub = barArea.submat(x, x, y, y);
+                    double[] pixel = maskedBar.get(x, y);
+                    pixel[0] = 255.0;
+                    pixel[1] = 255.0;
+                    pixel[2] = 255.0;
+                    pixel[3] = 255.0;
+                    Log.d(TAG, "" + maskedBar.get(x, y, buff));
+                    //Log.d(TAG, maskedBar.get(x, y).length + "\t" + maskedBar.get(x, y)[0] + "\t" + maskedBar.get(x, y)[1] + "\t" + maskedBar.get(x, y)[2] + "\t" + maskedBar.get(x, y)[3]);
+                }
+            }
+        }*/
+
+        //Core.bitwise_not(maskedBar, maskedBar);
+
+        maskedBar.copyTo(submat);
 
         return inputFrame;
     }
@@ -147,7 +205,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
 
         Mat fgMask = new Mat();
-        backgroundSubtractorFinal.apply(inputFrame, fgMask);
+        //backgroundSubtractorFinal.apply(inputFrame, fgMask);
 
         //Mat dnMask = new Mat();
         //Photo.fastNlMeansDenoising(fgMask, dnMask, 5, 7, 21);
