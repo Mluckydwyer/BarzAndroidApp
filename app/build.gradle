@@ -31,9 +31,11 @@ dependencies {
     compile project(':openCVLib320')
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:design:25.3.1'
-
-    compile 'com.github.bumptech.glide:glide:4.0.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0'
+    compile files('libs/jcodec-0.1.9.jar')
+    compile files('libs/jcodec-javase-0.1.9.jar')
 }
+
+
+
 
 apply plugin: 'com.google.gms.google-services'

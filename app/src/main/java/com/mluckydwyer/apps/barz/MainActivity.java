@@ -1,6 +1,5 @@
 package com.mluckydwyer.apps.barz;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,6 +19,7 @@ import org.opencv.videoio.VideoCapture;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Barz::MainActivity";
+    public static boolean isRecording = false;
 
     static {
         System.loadLibrary("opencv_java3");
@@ -27,9 +27,6 @@ public class MainActivity extends AppCompatActivity {
 
     private BackgroundProcess backgroundProcess;
     private VideoCapture videoCapture;
-
-    private boolean isRecording = false;
-
     private ImageView captureButton;
     private ImageView recordButton;
 
@@ -71,16 +68,13 @@ public class MainActivity extends AppCompatActivity {
         backgroundProcess.ocvCameraView.setVisibility(SurfaceView.VISIBLE);
         backgroundProcess.ocvCameraView.setCvCameraViewListener(backgroundProcess);
 
-        videoCapture = new VideoCapture();
-
         captureButton = (ImageView) findViewById(R.id.outline_circle);
         recordButton = (ImageView) findViewById(R.id.recording_circle);
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(!isRecording)
-                            playAnimation();
+                        if (!isRecording) playAnimation();
                     }
                 }
         );
@@ -99,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
-                finish();
-                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
+                Log.e(TAG, backgroundProcess.compileVideo());
             }
 
             @Override
