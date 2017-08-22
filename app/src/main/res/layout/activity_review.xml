@@ -1,47 +1,32 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/framelayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/colorPrimaryLight"
     tools:context="com.mluckydwyer.apps.barz.ReviewActivity">
-
-    <VideoView
-        android:id="@+id/fullscreen_review"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
-    <FrameLayout
+
+    <ImageView
+        android:id="@+id/imageviewgif"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:visibility="visible" />
 
-        <LinearLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?metaButtonBarStyle"
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            android:gravity="right"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent">
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/floatingActionButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                app:fabSize="normal"
-                app:srcCompat="@android:drawable/ic_menu_share" />
-
-        </LinearLayout>
-    </FrameLayout>
+            android:layout_weight="1"
+            android:text="@string/Share" />
+    </LinearLayout>
 
 </FrameLayout>
