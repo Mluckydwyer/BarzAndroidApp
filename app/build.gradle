@@ -33,6 +33,8 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile files('libs/jcodec-0.1.9.jar')
     compile files('libs/jcodec-javase-0.1.9.jar')
+    compile files('libs/glide-full-4.0.0.jar')
+    compile files('libs/glide-gifencoder-integration-4.0.0.jar')
 }
 
 
