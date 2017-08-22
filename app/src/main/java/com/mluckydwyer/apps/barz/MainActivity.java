@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
-                Log.e(TAG, backgroundProcess.compileVideo());
+
+                backgroundProcess.compileVideo();
             }
 
             @Override

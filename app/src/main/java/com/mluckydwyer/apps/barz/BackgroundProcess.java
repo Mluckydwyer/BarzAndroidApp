@@ -37,8 +37,6 @@ import java.util.List;
 public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.Callback, CameraBridgeViewBase.CvCameraViewListener {
 
     private static final String TAG = "OCVBarz::BackProcessing";
-    private final int FPS = 15;
-    private final int VIDEO_LENGTH_SEC = 5;
     public CameraBridgeViewBase ocvCameraView;
     private BackgroundSubtractor backgroundSubtractor;
     private Context context;
@@ -83,7 +81,10 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     public Mat onCameraFrame(Mat inputFrame) {
         Core.flip(inputFrame, inputFrame, 1);
         System.gc();
-        if (MainActivity.isRecording) videoFrames.add(inputFrame);
+        if (MainActivity.isRecording) {
+            videoFrames.add(inputFrame);
+            return inputFrame;
+        }
         return openCVPreview(inputFrame);
     }
 
@@ -131,7 +132,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     }
 
     public Mat openCVFinal(Mat inputFrame) {
-        //Imgproc.pyrDown(inputFrame, inputFrame);
+        /*//Imgproc.pyrDown(inputFrame, inputFrame);
         Imgproc.resize(inputFrame, inputFrame, new Size(960, 540));
 
 
@@ -146,7 +147,11 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
         //Imgproc.pyrUp(imgMasked, imgMasked);
 
-        return imgMasked;
+        return imgMasked;*/
+
+        Mat m = openCVPreview(inputFrame);
+
+        return m;
     }
 
     public void compileVideo() {
@@ -156,12 +161,16 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
         Log.e(TAG, "VFs: " + videoFrames.size());
 
+        int i = 1;
         for (Mat frame : videoFrames) {
-            tmp = openCVFinal(frame);
+            Imgproc.resize(frame, frame, new Size(960, 540));
+            tmp = openCVFinal(frame); //TODO
+            //tmp = openCVPreview(frame);
             bmp = Bitmap.createBitmap(tmp.cols(), tmp.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(tmp, bmp);
             videoBitmaps.add(bmp);
-            Log.e(TAG, "Frame Rendered" + bmp.getWidth() + "=" + tmp.width() + "\t" + bmp.getHeight() + "=" + tmp.height());
+            Log.e(TAG, "Frame Rendered" + bmp.getWidth() + "=" + tmp.width() + "\t" + bmp.getHeight() + "=" + tmp.height() + "\t" + i);
+            i++;
         }
         videoFrames.clear();
 
@@ -178,13 +187,15 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         }
 
         AnimatedGifEncoder e = new AnimatedGifEncoder();
-        e.start(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/myimages/popout.gif");
-        e.setDelay(250);
+        e.start(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/popout.gif");
+        //e.setDelay(250);
 
         for (Bitmap b : videoBitmaps)
             e.addFrame(b);
 
+        e.setQuality(1);
         e.finish();
+        Log.e(TAG, "Gif Made");
     }
 
 }
