@@ -16,17 +16,36 @@
         android:layout_height="match_parent"
         android:visibility="visible" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:backgroundTint="@color/colorPrimary"
+        android:foregroundTint="@color/colorPrimary">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="7dp"
+        android:layout_marginEnd="7dp"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="0dp"
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/sharebutton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/Share" />
-    </LinearLayout>
+            android:baselineAlignBottom="true"
+            android:src="@android:drawable/ic_menu_share"
+            app:elevation="3dp"
+            app:fabSize="normal" />
+    </FrameLayout>
 
 </FrameLayout>

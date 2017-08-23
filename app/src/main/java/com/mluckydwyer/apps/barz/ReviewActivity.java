@@ -30,7 +30,7 @@ public class ReviewActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.imageviewgif);
         Glide.with(this).load(sharePath).into(imageView);
 
-        Button shareButton = (Button) findViewById(R.id.button2);
+        Button shareButton = (Button) findViewById(R.id.sharebutton);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
