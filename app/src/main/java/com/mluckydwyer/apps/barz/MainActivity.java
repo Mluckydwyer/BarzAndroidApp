@@ -1,5 +1,6 @@
 package com.mluckydwyer.apps.barz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,19 +15,19 @@ import android.widget.ImageView;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.videoio.VideoCapture;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Barz::MainActivity";
     public static boolean isRecording = false;
 
+    private Intent intent;
+
     static {
         System.loadLibrary("opencv_java3");
     }
 
     private BackgroundProcess backgroundProcess;
-    private VideoCapture videoCapture;
     private ImageView captureButton;
     private ImageView recordButton;
 
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        intent = new Intent(this, ReviewActivity.class);
+
         backgroundProcess = new BackgroundProcess(this);
         backgroundProcess.ocvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_preview);
         backgroundProcess.ocvCameraView.setSystemUiVisibility(SurfaceView.INVISIBLE);
@@ -93,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
-                Log.e(TAG, backgroundProcess.compileVideo());
+                backgroundProcess.compileVideo();
+                intent.putExtra("key", backgroundProcess.getGifLoc());
+                startActivity(intent);
             }
 
             @Override

@@ -21,7 +21,7 @@ public class ReviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review);
 
-        String sharePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/myimages/popout.gif";
+        String sharePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/popout.gif";
         Uri uri = Uri.parse(sharePath);
         share = new Intent(Intent.ACTION_SEND);
         share.setType("image/gif");

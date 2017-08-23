@@ -13,12 +13,10 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractor;
@@ -36,12 +34,22 @@ import java.util.List;
 
 public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.Callback, CameraBridgeViewBase.CvCameraViewListener {
 
+    static{
+        System.loadLibrary("gifflen");
+    }
+
+    public native int Init(String gifName, int w, int h, int numColors, int quality,
+                           int frameDelay);
+    public native void Close();
+    public native int AddFrame(int[] inArray);
+
     private static final String TAG = "OCVBarz::BackProcessing";
     private final int FPS = 15;
     private final int VIDEO_LENGTH_SEC = 5;
     public CameraBridgeViewBase ocvCameraView;
     private BackgroundSubtractor backgroundSubtractor;
     private Context context;
+
     public BaseLoaderCallback loaderCallback = new BaseLoaderCallback(context) {
         @Override
         public void onManagerConnected(int status) {
@@ -58,6 +66,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
             }
         }
     };
+
     private ArrayList<Mat> videoFrames;
 
     public BackgroundProcess(Context context) {
@@ -83,7 +92,6 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     public Mat onCameraFrame(Mat inputFrame) {
         Core.flip(inputFrame, inputFrame, 1);
         System.gc();
-        if (MainActivity.isRecording) videoFrames.add(inputFrame);
         return openCVPreview(inputFrame);
     }
 
@@ -97,7 +105,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         List<MatOfInt> hulls = new ArrayList<MatOfInt>();
         Mat erosion = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(5, 5));
         Mat dilation = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(8, 8));
-        Rect roi = new Rect(w / 3, 0, 20, h);
+        Rect roi = new Rect(w/3, 0, 20, h);
         Mat bar = new Mat(inputFrame, roi);
         Mat maskedBar = new Mat();
         Mat barArea = bar.clone();
@@ -127,6 +135,10 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
         maskedBar.copyTo(submat);
 
+        if (MainActivity.isRecording){
+            videoFrames.add(inputFrame.clone());
+        }
+
         return inputFrame;
     }
 
@@ -150,41 +162,103 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
     }
 
     public void compileVideo() {
-        Mat tmp = new Mat(ocvCameraView.getHeight(), ocvCameraView.getWidth(), CvType.CV_8U, new Scalar(4));
         ArrayList<Bitmap> videoBitmaps = new ArrayList<Bitmap>();
-        Bitmap bmp = null;
+        Bitmap bmp;
 
         Log.e(TAG, "VFs: " + videoFrames.size());
 
         for (Mat frame : videoFrames) {
-            tmp = openCVFinal(frame);
-            bmp = Bitmap.createBitmap(tmp.cols(), tmp.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(tmp, bmp);
+            Imgproc.resize(frame, frame, new Size(960/4, 540/4));
+            bmp = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(frame, bmp);
             videoBitmaps.add(bmp);
-            Log.e(TAG, "Frame Rendered" + bmp.getWidth() + "=" + tmp.width() + "\t" + bmp.getHeight() + "=" + tmp.height());
+            Log.e(TAG, "Frame Rendered" + bmp.getWidth() + "=" + frame.width() + "\t" + bmp.getHeight() + "=" + frame.height());
         }
         videoFrames.clear();
 
         Log.e(TAG, "Frames: " + videoBitmaps.size());
 
-        makeGIF(videoBitmaps);
+        makeGIF2(videoBitmaps);
     }
+
+//    public void makeGIF(ArrayList<Bitmap> videoBitmaps) {
+//        try {
+//            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/popout.gif");
+//            file.delete();
+//        } catch (Exception e) {
+//        }
+//
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        AnimatedGifEncoder e = new AnimatedGifEncoder();
+//        e.setDelay(250);
+//        e.setRepeat(0);
+//        e.start(bos);
+//
+//        for (Bitmap b : videoBitmaps){
+//            e.addFrame(b);
+//        }
+//
+//        e.finish();
+//
+//        File filePath = new File(getGifLoc());
+//        FileOutputStream outputStream;
+//        try {
+//            outputStream = new FileOutputStream(filePath);
+//            outputStream.write(bos.toByteArray());
+//            Log.e(TAG, "Finished saving GIF!");
+//        } catch (FileNotFoundException j) {
+//        } catch (IOException k) {
+//        }
+//    }
 
     public void makeGIF(ArrayList<Bitmap> videoBitmaps) {
         try {
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/myimages/popout.gif");
+            File file = new File(getGifLoc());
             file.delete();
+            Log.e(TAG, "1!");
         } catch (Exception e) {
         }
 
         AnimatedGifEncoder e = new AnimatedGifEncoder();
-        e.start(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/myimages/popout.gif");
-        e.setDelay(250);
+        //e.setDelay(250);
+        //e.setRepeat(0);
+        e.start(getGifLoc());
+        //e.setDelay(250);
 
-        for (Bitmap b : videoBitmaps)
+        for (Bitmap b : videoBitmaps){
             e.addFrame(b);
+            Log.e(TAG, "added");
+        }
 
         e.finish();
+        Log.e(TAG, "Gif Made!");
+    }
+
+    public void makeGIF2(ArrayList<Bitmap> videoBitmaps) {
+        try {
+            File file = new File(getGifLoc());
+            file.delete();
+            Log.e(TAG, "1!");
+        } catch (Exception e) {
+        }
+        // Filename, width, height, colors, quality, frame delay
+        if (Init(getGifLoc(), 960/4, 540/4, 256, 100, 4) != 0) {
+            Log.e("gifflen", "Init failed");
+        }
+
+        for(Bitmap b : videoBitmaps){
+            int[] pixels = new int[b.getWidth()*b.getHeight()];
+            // bitmap should be 32-bit ARGB, e.g. like the ones you get when decoding
+            // a JPEG using BitmapFactory
+            b.getPixels(pixels, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight());
+            AddFrame(pixels);
+            Log.e(TAG, "added");
+        }
+        Close();
+    }
+
+    public String getGifLoc(){
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/popout.gif";
     }
 
 }
