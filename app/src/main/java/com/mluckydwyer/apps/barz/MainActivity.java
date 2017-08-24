@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //unused animation code
-    private void playLoadAnimation(){
+    private void playLoadAnimation() {
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_animation);
         animation.setRepeatCount(50);
 
