@@ -21,12 +21,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Barz::MainActivity";
     public static boolean isRecording = false;
 
-    private Intent intent;
-
     static {
         System.loadLibrary("opencv_java3");
     }
 
+    private Intent intent;
     private BackgroundProcess backgroundProcess;
     private ImageView captureButton;
     private ImageView recordButton;
@@ -96,9 +95,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
-                backgroundProcess.compileVideo();
                 intent.putExtra("key", backgroundProcess.getGifLoc());
                 startActivity(intent);
+                backgroundProcess.compileVideo();
             }
 
             @Override
