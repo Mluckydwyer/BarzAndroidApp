@@ -167,7 +167,10 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
         Log.e(TAG, "VFs: " + videoFrames.size());
 
-        for (Mat frame : videoFrames) {
+        ArrayList<Mat> vF  = (ArrayList<Mat>) videoFrames.clone();
+        videoFrames.clear();
+
+        for (Mat frame : vF) {
             Imgproc.resize(frame, frame, new Size(960/4, 540/4));
             bmp = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(frame, bmp);
