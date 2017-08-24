@@ -12,6 +12,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.wang.avi.AVLoadingIndicatorView;
+
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private BackgroundProcess backgroundProcess;
     private ImageView captureButton;
     private ImageView recordButton;
+
+    private AVLoadingIndicatorView avi;
 
     @Override
     protected void onDestroy() {
@@ -73,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
 
         captureButton = (ImageView) findViewById(R.id.outline_circle);
         recordButton = (ImageView) findViewById(R.id.recording_circle);
+        avi = (AVLoadingIndicatorView) findViewById(R.id.pac);
+
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -96,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
-                backgroundProcess.compileVideo();
                 intent.putExtra("key", backgroundProcess.getGifLoc());
+                backgroundProcess.compileVideo();
                 startActivity(intent);
             }
 
@@ -109,10 +115,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //unused animation code
-    private void playClickAnimation(){
-        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.click_animation);
-        recordButton.setAnimation(animation);
-        recordButton.startAnimation(animation);
+    private void playLoadAnimation(){
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_animation);
+        animation.setRepeatCount(50);
+
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {

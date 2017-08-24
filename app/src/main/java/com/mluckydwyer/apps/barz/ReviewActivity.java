@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -30,7 +30,7 @@ public class ReviewActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.imageviewgif);
         Glide.with(this).load(sharePath).into(imageView);
 
-        Button shareButton = (Button) findViewById(R.id.sharebutton);
+        FloatingActionButton shareButton = (FloatingActionButton) findViewById(R.id.sharebutton);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

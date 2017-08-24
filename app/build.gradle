@@ -40,6 +40,7 @@ dependencies {
     compile files('libs/jcodec-javase-0.1.9.jar')
     compile files('libs/glide-full-4.0.0.jar')
     compile files('libs/glide-gifencoder-integration-4.0.0.jar')
+    compile 'com.wang.avi:library:2.1.3'
 }
 
 
