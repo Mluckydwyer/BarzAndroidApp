@@ -34,22 +34,17 @@ import java.util.List;
 
 public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.Callback, CameraBridgeViewBase.CvCameraViewListener {
 
+    private static final String TAG = "OCVBarz::BackProcessing";
+
     static{
         System.loadLibrary("gifflen");
     }
 
-    public native int Init(String gifName, int w, int h, int numColors, int quality,
-                           int frameDelay);
-    public native void Close();
-    public native int AddFrame(int[] inArray);
-
-    private static final String TAG = "OCVBarz::BackProcessing";
     private final int FPS = 15;
     private final int VIDEO_LENGTH_SEC = 5;
     public CameraBridgeViewBase ocvCameraView;
     private BackgroundSubtractor backgroundSubtractor;
     private Context context;
-
     public BaseLoaderCallback loaderCallback = new BaseLoaderCallback(context) {
         @Override
         public void onManagerConnected(int status) {
@@ -66,9 +61,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
             }
         }
     };
-
     private ArrayList<Mat> videoFrames;
-
     public BackgroundProcess(Context context) {
         super(context, 0);
         this.context = context;
@@ -77,6 +70,13 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
         Log.i(TAG, "Background Process Constructor Called");
     }
+
+    public native int Init(String gifName, int w, int h, int numColors, int quality,
+                           int frameDelay);
+
+    public native void Close();
+
+    public native int AddFrame(int[] inArray);
 
     @Override
     public void onCameraViewStarted(int width, int height) {
@@ -167,7 +167,7 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
 
         Log.e(TAG, "VFs: " + videoFrames.size());
 
-        ArrayList<Mat> vF  = (ArrayList<Mat>) videoFrames.clone();
+        ArrayList<Mat> vF = (ArrayList<Mat>) videoFrames.clone();
         videoFrames.clear();
 
         for (Mat frame : vF) {

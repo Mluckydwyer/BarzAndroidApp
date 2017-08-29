@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 
@@ -37,5 +38,8 @@ public class ReviewActivity extends AppCompatActivity {
                 startActivity(Intent.createChooser(share, "Share GIF!"));
             }
         });
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress);
+        //progressBar.setVisibility();
     }
 }
