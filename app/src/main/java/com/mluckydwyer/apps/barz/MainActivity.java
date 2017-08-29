@@ -23,12 +23,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Barz::MainActivity";
     public static boolean isRecording = false;
 
-    private Intent intent;
-
     static {
         System.loadLibrary("opencv_java3");
     }
 
+    private Intent intent;
     private BackgroundProcess backgroundProcess;
     private ImageView captureButton;
     private ImageView recordButton;
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         backgroundProcess = new BackgroundProcess(this);
         backgroundProcess.ocvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_preview);
         backgroundProcess.ocvCameraView.setSystemUiVisibility(SurfaceView.INVISIBLE);
-        backgroundProcess.ocvCameraView.enableFpsMeter();
+        //backgroundProcess.ocvCameraView.enableFpsMeter();
         backgroundProcess.ocvCameraView.setVisibility(SurfaceView.VISIBLE);
         backgroundProcess.ocvCameraView.setCvCameraViewListener(backgroundProcess);
 
@@ -103,13 +102,16 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
                 intent.putExtra("key", backgroundProcess.getGifLoc());
-                avi.show();
-                new Thread(new Runnable() {
+                //avi.show();
+                Thread thread = new Thread(new Runnable() {
                     public void run() {
                         backgroundProcess.compileVideo();
-                        startActivity(intent);
+                        ReviewActivity.setIsGifReady(true);
                     }
-                }).start();
+                });
+                thread.start();
+
+                startActivity(intent);
             }
 
             @Override
