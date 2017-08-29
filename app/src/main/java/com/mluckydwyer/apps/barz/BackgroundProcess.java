@@ -264,4 +264,8 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/popout.gif";
     }
 
+    public ArrayList<Mat> getVideoFrames(){
+        return videoFrames;
+    }
+
 }

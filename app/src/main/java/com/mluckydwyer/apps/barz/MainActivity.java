@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         captureButton = (ImageView) findViewById(R.id.outline_circle);
         recordButton = (ImageView) findViewById(R.id.recording_circle);
         avi = (AVLoadingIndicatorView) findViewById(R.id.pac);
-
+        avi.hide();
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -103,8 +103,13 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationEnd(Animation animation) {
                 isRecording = false;
                 intent.putExtra("key", backgroundProcess.getGifLoc());
-                backgroundProcess.compileVideo();
-                startActivity(intent);
+                avi.show();
+                new Thread(new Runnable() {
+                    public void run() {
+                        backgroundProcess.compileVideo();
+                        startActivity(intent);
+                    }
+                }).start();
             }
 
             @Override
