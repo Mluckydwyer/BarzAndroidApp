@@ -13,10 +13,12 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractor;
@@ -106,8 +108,10 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         Mat erosion = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(5, 5));
         Mat dilation = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(8, 8));
         Rect roi = new Rect(w/3, 0, 20, h);
+        Rect roi2 = new Rect(2 * (w / 3), 0, 20, h);
         Mat bar = new Mat(inputFrame, roi);
         Mat maskedBar = new Mat();
+        Mat solidBar = new Mat().setTo(new Scalar(255, 255, 255));
         Mat barArea = bar.clone();
 
         Imgproc.cvtColor(bar, bar, Imgproc.COLOR_RGB2HSV, 3);
@@ -128,12 +132,23 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2HSV, 3);
         Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2GRAY);
 
+        Mat invBar = new Mat();
+        //bar.convertTo(invBar, CvType.CV_64F);
+        Core.invert(invBar, bar);
+
+        new Mat(roi2.size(), CvType.CV_64F, new Scalar(255, 255, 255)).copyTo(invBar, invBar);
+
         Mat submat = inputFrame.submat(roi);
         barArea.copyTo(maskedBar, bar);
 
-        double buff[] = new double[maskedBar.channels()];
+        Mat submat2 = inputFrame.submat(roi2);
+
+        //double buff[] = new double[maskedBar.channels()];
+
+        Core.add(maskedBar, invBar, maskedBar);
 
         maskedBar.copyTo(submat);
+        solidBar.copyTo(submat2);
 
         if (MainActivity.isRecording){
             videoFrames.add(inputFrame.clone());
