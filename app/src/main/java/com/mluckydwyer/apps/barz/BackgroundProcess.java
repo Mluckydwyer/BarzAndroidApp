@@ -13,10 +13,7 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -26,7 +23,6 @@ import org.opencv.video.Video;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Project: Barz
@@ -70,7 +66,6 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         backgroundSubtractor = Video.createBackgroundSubtractorMOG2(20, 400.0, true); // Num frames that affect model, shadow threshold, detect shadows
         videoFrames = new ArrayList<Mat>();
 
-        Log.i(TAG, "Background Process Constructor Called");
     }
 
     public native int Init(String gifName, int w, int h, int numColors, int quality,
@@ -102,16 +97,16 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         int w = inputFrame.width();
         int h = inputFrame.height();
 
-        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        List<MatOfPoint> barPoints = new ArrayList<MatOfPoint>();
-        List<MatOfInt> hulls = new ArrayList<MatOfInt>();
+        //List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        //List<MatOfPoint> barPoints = new ArrayList<MatOfPoint>();
+        //List<MatOfInt> hulls = new ArrayList<MatOfInt>();
         Mat erosion = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(5, 5));
         Mat dilation = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_RECT, new Size(8, 8));
         Rect roi = new Rect(w/3, 0, 20, h);
         Rect roi2 = new Rect(2 * (w / 3), 0, 20, h);
         Mat bar = new Mat(inputFrame, roi);
         Mat maskedBar = new Mat();
-        Mat solidBar = new Mat().setTo(new Scalar(255, 255, 255));
+        Mat solidBar = new Mat(inputFrame, roi2);
         Mat barArea = bar.clone();
 
         Imgproc.cvtColor(bar, bar, Imgproc.COLOR_RGB2HSV, 3);
@@ -132,23 +127,22 @@ public class BackgroundProcess extends JavaCameraView implements SurfaceHolder.C
         Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2HSV, 3);
         Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2GRAY);
 
-        Mat invBar = new Mat();
-        //bar.convertTo(invBar, CvType.CV_64F);
-        Core.invert(invBar, bar);
-
-        new Mat(roi2.size(), CvType.CV_64F, new Scalar(255, 255, 255)).copyTo(invBar, invBar);
+//        Mat invBar = new Mat();
+//        //bar.convertTo(invBar, CvType.CV_64F);
+//        //Core.invert(invBar, bar);
+//
+//        new Mat(roi2.size(), CvType.CV_64F, new Scalar(255, 255, 255)).copyTo(invBar, invBar);
 
         Mat submat = inputFrame.submat(roi);
         barArea.copyTo(maskedBar, bar);
 
-        Mat submat2 = inputFrame.submat(roi2);
-
         //double buff[] = new double[maskedBar.channels()];
 
-        Core.add(maskedBar, invBar, maskedBar);
+//        Core.add(maskedBar, invBar, maskedBar);
 
         maskedBar.copyTo(submat);
-        solidBar.copyTo(submat2);
+
+        solidBar.setTo(new Scalar(255,255,255));
 
         if (MainActivity.isRecording){
             videoFrames.add(inputFrame.clone());
